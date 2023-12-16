@@ -36,3 +36,11 @@
 *.db-wal
 *.db-shm
 *.ipch
+*.tlog
+*.log
+*.pdb
+*.idb
+*.recipe
+.vs/SocketLecture/v17/.suo
+*.ilk
+*.txt
