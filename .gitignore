@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+*.vsidx
+.vs/SocketLecture/v17/Browse.VC.db
+*.opendb
+*.db-wal
+*.db-shm
+*.ipch
