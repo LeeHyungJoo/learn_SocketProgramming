@@ -49,3 +49,5 @@ Server/.vs/Server/v17/Browse.VC.db
 Server/.vs/slnx.sqlite
 Server/.vs/SocketLecture/v16/Browse.VC.db
 Server/.vs/SocketLecture/v17/Browse.VC.db
+*.ipdb
+*.iobj
