@@ -1,9 +1,11 @@
 ﻿
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <SDKDDKVer.h>
 #include <stdio.h>
 #include <tchar.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32")
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -41,7 +43,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		gets_s(szBuffer);
 		if (strcmp(szBuffer, "QUIT") == 0)break;
 
-		::send(hSocket, szBuffer, strlen(szBuffer) + 1, 0);
+		::send(hSocket, szBuffer, (int)strlen(szBuffer) + 1, 0);
 		memset(szBuffer, 0, sizeof(szBuffer));
 		::recv(hSocket, szBuffer, sizeof(szBuffer), 0);
 		printf("From Server : %s \n", szBuffer);
