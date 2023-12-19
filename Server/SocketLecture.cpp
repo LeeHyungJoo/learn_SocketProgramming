@@ -1,55 +1,75 @@
-﻿#include <iostream>
-#include <Windows.h>
+﻿#include <SDKDDKVer.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <winsock2.h>
+#pragma comment(lib, "ws2_32")
 
-using namespace std;
-
-DWORD WINAPI ThreadFunc(LPVOID pParam)
+int _tmain(int argc, _TCHAR* argv[])
 {
-	cout << "[ThreadFunc] Start" << endl;
-
-	for (int i = 0; i < 10; i++)
+	//윈도우 소켓 초기화 
+	WSADATA wsa = { 0 };
+	if (::WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		cout << "[ThreadFunc] " << i << endl;
+		puts("ERR : Winsock initialize Failed");
+		return 0;
 	}
 
-	cout << "Event Set In Thread" << endl;
-	SetEvent((HANDLE)pParam);
-	cout << "Event Set End In Thread" << endl;
-
-	cout << "[ThreadFunc] End" << endl;
-	return 0;
-}
-
-int main()
-{
-	HANDLE hEvent = CreateEvent(
-		NULL,	//보안 속성. 상속 어쩌구.. 인데 아직 뭔지 모르겠음.
-		FALSE,	//Set 상태가 되었을때 Set 상태 유지할 것인지 옵션.
-		FALSE,	//초기 상태 (reset 상태)
-		NULL	//프로세스가 여러개일 때 사용한다. 커널 오브젝트에 이름 붙일때 사용.
-	);
-
-	DWORD dwThreadID = 0;
-	HANDLE hThread = CreateThread(
-		NULL, 			// 보안 속성 NULL 일 경우, 상속받겠다는 의미
-		0,				// 스택 메모리. 0이면 기본 크기 (1MB)
-		ThreadFunc, 	// 스레드로 실행할 함수 이름
-		hEvent,			// 함수에 전달할 매개변수
-		0,				// 생성 플래그는 기본 값 사용
-		&dwThreadID		// 생성된 스레드 ID 저장.
-	);	
-
-	for (int i = 0; i < 10; ++i)
+	//1. 접속 대기 소켓 생성 
+	SOCKET hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
+	if (hSocket == INVALID_SOCKET)
 	{
-		cout << "[main] " << i << endl;
-		//main thread - i 가 3이 될때, hEvent 가 Set 될때까지 기다림.
-		if (i == 3 && WaitForSingleObject(hEvent, INFINITE) == WAIT_OBJECT_0)
+		puts("ERR : Fail to Create socket");
+		return 0;
+	}
+
+	//2. 포트 바인딩 
+	SOCKADDR_IN	serverAddr = { 0 };
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(25000); 
+	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	if (::bind(hSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+	{
+		puts("ERR : Fail to Bind Socket's IP / Port");
+		return 0;
+	}
+
+	//3. 접속 대기 상태로 전환 
+	if (::listen(hSocket, SOMAXCONN) == SOCKET_ERROR)
+	{
+		puts("ERR : Fail to listen");
+		return 0;
+	}
+
+	//4. 클라이언트 접속 처리 및 대응 
+	SOCKADDR_IN clientAddr = { 0 };
+	int nAddLen = sizeof(clientAddr);
+	SOCKET hClient = 0;
+	char szBuffer[128] = {};
+	int nReceive = 0;
+
+	//4-1. 클라이언트 연결 & 새로운 소켓 생성 (개방)
+	while((hClient = accept(hSocket, (sockaddr*)&clientAddr, &nAddLen)) != INVALID_SOCKET)
+	{
+		puts("DBG : Connect New Client Success");
+		fflush(stdout);
+
+		//4-2. 클라이언트로부터 문자열을 수신함. 
+		while ((nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0)) > 0)
 		{
-			cout << "[main] wait for event" << endl;
+			//4-3. 수신한 문자열 그대로 반향 전송. 
+			::send(hClient, szBuffer, sizeof(szBuffer), 0);
+			puts(szBuffer); 
+			fflush(stdout);
+			memset(szBuffer, 0, sizeof(szBuffer));
 		}
+
+		//4.3 클라이언트가 연결을 종료함
+		::shutdown(hSocket, SD_BOTH);
+		::closesocket(hClient);
+		puts("DBG : Disconneted Client");
+		fflush(stdout);
 	}
 
-	CloseHandle(hThread);
 
 	return 0;
 }

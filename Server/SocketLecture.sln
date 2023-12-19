@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketLecture", "SocketLecture.vcxproj", "{FF711922-4696-45C7-A040-0A7107935168}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketLecture_Client", "..\SocketLecture_Client\SocketLecture_Client.vcxproj", "{8E6ED9AA-1037-4395-B152-30AA6F8ED161}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -13,14 +15,21 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FF711922-4696-45C7-A040-0A7107935168}.Debug|x64.ActiveCfg = Debug|x64
-		{FF711922-4696-45C7-A040-0A7107935168}.Debug|x64.Build.0 = Debug|x64
+		{FF711922-4696-45C7-A040-0A7107935168}.Debug|x64.ActiveCfg = Release|x64
+		{FF711922-4696-45C7-A040-0A7107935168}.Debug|x64.Build.0 = Release|x64
 		{FF711922-4696-45C7-A040-0A7107935168}.Debug|x86.ActiveCfg = Debug|Win32
 		{FF711922-4696-45C7-A040-0A7107935168}.Debug|x86.Build.0 = Debug|Win32
 		{FF711922-4696-45C7-A040-0A7107935168}.Release|x64.ActiveCfg = Release|x64
 		{FF711922-4696-45C7-A040-0A7107935168}.Release|x64.Build.0 = Release|x64
 		{FF711922-4696-45C7-A040-0A7107935168}.Release|x86.ActiveCfg = Release|Win32
 		{FF711922-4696-45C7-A040-0A7107935168}.Release|x86.Build.0 = Release|Win32
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Debug|x64.ActiveCfg = Debug|x64
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Debug|x86.ActiveCfg = Debug|Win32
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Debug|x86.Build.0 = Debug|Win32
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Release|x64.ActiveCfg = Release|x64
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Release|x64.Build.0 = Release|x64
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Release|x86.ActiveCfg = Release|Win32
+		{8E6ED9AA-1037-4395-B152-30AA6F8ED161}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
