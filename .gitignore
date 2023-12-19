@@ -1,5 +1,7 @@
 # Prerequisites
 *.d
+*.suo
+*.wsuo
 
 # Compiled Object files
 *.slo
@@ -31,7 +33,6 @@
 *.out
 *.app
 *.vsidx
-.vs/SocketLecture/v17/Browse.VC.db
 *.opendb
 *.db-wal
 *.db-shm
@@ -41,8 +42,10 @@
 *.pdb
 *.idb
 *.recipe
-.vs/SocketLecture/v17/.suo
 *.ilk
 *.txt
-.vs/SocketLecture/v16/Browse.VC.db
-.vs/SocketLecture/v16/.suo
+Server/.vs/ProjectSettings.json
+Server/.vs/Server/v17/Browse.VC.db
+Server/.vs/slnx.sqlite
+Server/.vs/SocketLecture/v16/Browse.VC.db
+Server/.vs/SocketLecture/v17/Browse.VC.db
