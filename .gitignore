@@ -52,3 +52,4 @@ Server/.vs/SocketLecture/v17/Browse.VC.db
 *.ipdb
 *.iobj
 .vs/SocketLecture/v17/Browse.VC.db
+*.db
