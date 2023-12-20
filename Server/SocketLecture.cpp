@@ -1,4 +1,5 @@
-﻿#include <SDKDDKVer.h>
+﻿#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <SDKDDKVer.h>
 #include <stdio.h>
 #include <tchar.h>
 #include <winsock2.h>
@@ -31,6 +32,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		puts("ERR : Fail to Bind Socket's IP / Port");
 		return 0;
+	}
+
+	//소켓의 "송신" 버퍼의 크기를 확인
+	int nBufSize = 0, nLen = sizeof(nBufSize);
+	if (::getsockopt(hSocket, SOL_SOCKET, SO_SNDBUF, (char*)&nBufSize, &nLen) != SOCKET_ERROR)
+	{
+		printf("Send Buffer Size : %d \n", nBufSize);
+	}
+
+	//소켓의 "송신" 버퍼의 크기를 확인
+	nBufSize = 0, nLen = sizeof(nBufSize);
+	if (::getsockopt(hSocket, SOL_SOCKET, SO_RCVBUF, (char*)&nBufSize, &nLen) != SOCKET_ERROR)
+	{
+		printf("Recv Buffer Size : %d \n", nBufSize);
 	}
 
 	//3. 접속 대기 상태로 전환 
@@ -70,7 +85,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		fflush(stdout);
 	}
 
-
+	::WSACleanup();
 	return 0;
 }
 
