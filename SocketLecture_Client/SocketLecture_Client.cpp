@@ -29,12 +29,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	SOCKADDR_IN serverAddr = { 0 };
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(25000);
-	serverAddr.sin_addr.S_un.S_addr = inet_addr("222.98.33.167");
+	serverAddr.sin_addr.S_un.S_addr = inet_addr("220.120.66.168");
 	if (::connect(hSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
 	{
 		puts("ERR : Failed To Connet to Server");
 		return 0;
 	}
+
+
+	//no delay 소켓으로 설정 
+	int nOpt = 1;
+	::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nOpt, sizeof(nOpt));
 
 	// 3. 채팅 메세지 송/수신
 	char szBuffer[128] = { 0 };
