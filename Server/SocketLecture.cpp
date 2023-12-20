@@ -5,6 +5,29 @@
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32")
 
+DWORD WINAPI WorkerThread(LPVOID pParam)
+{
+	SOCKET hClient = (SOCKET)pParam;
+	char szBuffer[128] = {};
+	int nReceive = 0;
+
+	puts("DBG : Connect New Client Success");
+
+	while ((nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0)) > 0)
+	{
+		::send(hClient, szBuffer, sizeof(szBuffer), 0);
+		puts(szBuffer);
+		fflush(stdout);
+		memset(szBuffer, 0, sizeof(szBuffer));
+	}
+
+	//4.3 클라이언트가 연결을 종료함
+
+	puts("DBG : Disconneted Client");
+	::closesocket(hClient);
+	return 0;
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//윈도우 소켓 초기화 
@@ -67,30 +90,26 @@ int _tmain(int argc, _TCHAR* argv[])
 	SOCKADDR_IN clientAddr = { 0 };
 	int nAddLen = sizeof(clientAddr);
 	SOCKET hClient = 0;
-	char szBuffer[128] = {};
-	int nReceive = 0;
+	DWORD dwThreadID = 0;
+	HANDLE hThread;
 
 	//4-1. 클라이언트 연결 & 새로운 소켓 생성 (개방)
 	while((hClient = accept(hSocket, (sockaddr*)&clientAddr, &nAddLen)) != INVALID_SOCKET)
 	{
-		puts("DBG : Connect New Client Success");
-		fflush(stdout);
+		//4-2 클라이언트와 통신하기 위한 스레드 생성. 클라이언트마다 새 스레드 생성
+		hThread = ::CreateThread(
+			NULL,
+			0,
+			WorkerThread,
+			(LPVOID)hClient,
+			0,
+			&dwThreadID
+		);
 
-		//4-2. 클라이언트로부터 문자열을 수신함. 
-		while ((nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0)) > 0)
+		if (hThread != NULL)
 		{
-			//4-3. 수신한 문자열 그대로 반향 전송. 
-			::send(hClient, szBuffer, sizeof(szBuffer), 0);
-			puts(szBuffer); 
-			fflush(stdout);
-			memset(szBuffer, 0, sizeof(szBuffer));
+			::CloseHandle(hThread);
 		}
-
-		//4.3 클라이언트가 연결을 종료함
-		::shutdown(hSocket, SD_BOTH);
-		::closesocket(hClient);
-		puts("DBG : Disconneted Client");
-		fflush(stdout);
 	}
 
 	::WSACleanup();

@@ -55,6 +55,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	// 4. 소켓을 닫고 종료. 
+	::shutdown(hSocket, SD_BOTH);
 	::closesocket(hSocket);
 	::WSACleanup();
 	return 0;
