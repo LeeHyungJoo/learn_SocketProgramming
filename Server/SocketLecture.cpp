@@ -23,6 +23,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 0;
 	}
 
+	//바인딩 전에 재사용 소켓 옵션 설정 (2개 띄워보기)
+	BOOL bOption = TRUE;
+	if (::setsockopt(hSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&bOption, sizeof(BOOL)) == SOCKET_ERROR)
+	{
+		puts("ERR : Failed to Set Sockopt");
+		return 0;
+	}
+
 	//2. 포트 바인딩 
 	SOCKADDR_IN	serverAddr = { 0 };
 	serverAddr.sin_family = AF_INET;
