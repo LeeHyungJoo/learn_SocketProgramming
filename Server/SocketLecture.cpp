@@ -3,7 +3,44 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <winsock2.h>
+#include <list>
+#include <algorithm>
 #pragma comment(lib, "ws2_32")
+
+CRITICAL_SECTION	g_cs;			//스레드 동기화 객체
+SOCKET				g_hSocket;		//서버의 리슨 소켓
+std::list<SOCKET>	g_listClient;	//연결된 클라이언트 소켓 리스트
+
+void AddClient(SOCKET client)
+{
+	::EnterCriticalSection(&g_cs);
+	g_listClient.push_back(client);
+	::LeaveCriticalSection(&g_cs);
+
+	puts("DBG : Connect New Client Success");
+}
+
+void BroadCast(char * szBuffer, size_t bufferSize)
+{
+	::EnterCriticalSection(&g_cs);
+	for (auto& client : g_listClient)
+		::send(client, szBuffer, bufferSize, 0);
+	::LeaveCriticalSection(&g_cs);
+}
+
+void DeleteClient(SOCKET client)
+{
+	::EnterCriticalSection(&g_cs);
+	auto itr = std::find(g_listClient.begin(), g_listClient.end(), client);
+	if (itr != g_listClient.end())
+		g_listClient.erase(itr);
+	::LeaveCriticalSection(&g_cs);
+	
+	::closesocket(client);
+
+	puts("DBG : Disconneted Client");
+}
+
 
 DWORD WINAPI WorkerThread(LPVOID pParam)
 {
@@ -11,25 +48,26 @@ DWORD WINAPI WorkerThread(LPVOID pParam)
 	char szBuffer[128] = {};
 	int nReceive = 0;
 
-	puts("DBG : Connect New Client Success");
+	AddClient(hClient);
 
 	while ((nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0)) > 0)
 	{
-		::send(hClient, szBuffer, sizeof(szBuffer), 0);
+		BroadCast(szBuffer, sizeof(szBuffer));
 		puts(szBuffer);
-		fflush(stdout);
 		memset(szBuffer, 0, sizeof(szBuffer));
 	}
 
 	//4.3 클라이언트가 연결을 종료함
+	DeleteClient(hClient);
 
-	puts("DBG : Disconneted Client");
-	::closesocket(hClient);
 	return 0;
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//임계영역 처리 변수 초기화
+	::InitializeCriticalSection(&g_cs);
+
 	//윈도우 소켓 초기화 
 	WSADATA wsa = { 0 };
 	if (::WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -107,9 +145,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		);
 
 		if (hThread != NULL)
-		{
 			::CloseHandle(hThread);
-		}
 	}
 
 	::WSACleanup();

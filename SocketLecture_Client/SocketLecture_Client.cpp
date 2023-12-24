@@ -7,6 +7,23 @@
 #pragma comment(lib, "ws2_32")
 
 
+DWORD WINAPI ReceiveThread(LPVOID pParam)
+{
+	SOCKET hSocket = (SOCKET)pParam;
+	char szBuffer[128] = { 0 };
+	int nReceive = 0;
+
+	while ((nReceive = ::recv(hSocket, szBuffer, sizeof(szBuffer), 0)) > 0)
+	{
+		printf("From Server : %s \n", szBuffer);
+		memset(szBuffer, 0, sizeof(szBuffer));
+	}
+
+	puts("ReceiveThread End");
+	return 0;
+}
+
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// 윈도우 소켓 초기화 
@@ -29,7 +46,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	SOCKADDR_IN serverAddr = { 0 };
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(25000);
-	serverAddr.sin_addr.S_un.S_addr = inet_addr("220.120.66.168");
+	serverAddr.sin_addr.S_un.S_addr = inet_addr("59.14.2.205");
 	if (::connect(hSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
 	{
 		puts("ERR : Failed To Connet to Server");
@@ -41,6 +58,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	int nOpt = 1;
 	::setsockopt(hSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&nOpt, sizeof(nOpt));
 
+	//수신 쓰레드 분리
+	DWORD dwThreadID = 0; 
+	HANDLE hThread = ::CreateThread(
+		NULL,
+		0,
+		ReceiveThread,
+		(LPVOID)hSocket,
+		0,
+		&dwThreadID
+	);
+
+	if (hThread != NULL)
+		::CloseHandle(hThread);
+
 	// 3. 채팅 메세지 송/수신
 	char szBuffer[128] = { 0 };
 	while (true)
@@ -50,8 +81,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		::send(hSocket, szBuffer, (int)strlen(szBuffer) + 1, 0);
 		memset(szBuffer, 0, sizeof(szBuffer));
-		::recv(hSocket, szBuffer, sizeof(szBuffer), 0);
-		printf("From Server : %s \n", szBuffer);
 	}
 
 	// 4. 소켓을 닫고 종료. 
